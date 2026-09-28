@@ -206,8 +206,13 @@ const list=document.getElementById('prizes');
 list.innerHTML=ORDEN.map(i=>{const p=PREMIOS[i];return `<div class="prize" id="p${i}"><div class="ph">${p.iconoRueda?ICONOS[p.iconoRueda]:visual(p)}</div><div><b>${p.lista||p.nombre}</b><small>${p.listaDesc||p.desc}</small></div></div>`;}).join('');
 
 /* ---- Lee el link: #<datos>.<codigo> (lo genera el Generador de links) ---- */
+const SUCURSALES=["Tulancingo · Matriz","Pachuca · Colosio","Pachuca · Río de las Avenidas","Ciudad Sahagún · Sucursal Sahagún","Tizayuca · Sucursal Tizayuca"];
 function leerLink(){
-  try{const h=decodeURIComponent(location.hash.slice(1));const i=h.lastIndexOf(".");if(i<1)return null;
+  try{const h=decodeURIComponent(location.hash.slice(1));
+    /* Formato corto: FOLIO.PS.CODIGO.Nombre */
+    const m=h.match(/^(.+)\.(\d)(\d)\.([A-Z2-9]{5})(?:\.(.*))?$/);
+    if(m){const p=+m[2];if(!PREMIOS[p])return null;return {f:m[1],p,s:SUCURSALES[+m[3]]||"",n:(m[5]||"").replace(/_/g," "),c:m[4]};}
+    /* Formato anterior (links ya enviados) */const i=h.lastIndexOf(".");if(i<1)return null;
     const b=h.slice(0,i).replace(/-/g,"+").replace(/_/g,"/");
     const d=JSON.parse(decodeURIComponent(escape(atob(b+"===".slice((b.length+3)%4)))));
     if(typeof d.p!=="number"||!PREMIOS[d.p]||!d.f)return null;return {...d,c:h.slice(i+1)};}catch(e){return null;}
